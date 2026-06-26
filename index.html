@@ -1,0 +1,1574 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Survei Petani — Rize Farm AWD</title>
+<style>
+:root {
+  --green:       #1F5C00;
+  --green-mid:   #2D7A00;
+  --green-pale:  #EBF2E7;
+  --gold:        #CC9900;
+  --gold-light:  #F5CC00;
+  --bg:          #F2F6F0;
+  --card:        #FFFFFF;
+  --text:        #1A2810;
+  --muted:       #6B7B63;
+  --border:      #D4E0CB;
+  --error:       #C0392B;
+  --r:           12px;
+  --rs:          8px;
+  --sh:          0 2px 12px rgba(31,92,0,0.09);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:40px}
+
+/* ─── HEADER ─── */
+.app-header{background:var(--green);padding:14px 16px 10px;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,0.18)}
+.hd-top{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.hd-logo{width:30px;height:30px;flex-shrink:0}
+.hd-title{color:#fff;font-size:15px;font-weight:700;letter-spacing:.4px}
+.hd-sub{color:var(--gold-light);font-size:11px;margin-top:1px}
+.prog-bar{height:3px;background:rgba(255,255,255,.2);border-radius:2px;overflow:hidden}
+.prog-fill{height:100%;background:var(--gold);border-radius:2px;transition:width .35s ease}
+.prog-label{color:rgba(255,255,255,.65);font-size:11px;text-align:right;margin-top:5px}
+
+/* ─── CONTAINER ─── */
+.container{max-width:580px;margin:0 auto;padding:0 14px}
+
+/* ─── STEPS ─── */
+.step{display:none;animation:fadeUp .22s ease}
+.step.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+/* ─── SECTION HEADER ─── */
+.sec-hd{padding:20px 0 14px}
+.badge{display:inline-block;background:var(--gold);color:#1A1400;font-size:10px;font-weight:700;padding:3px 8px;border-radius:4px;text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px}
+.sec-title{font-size:20px;font-weight:800;color:var(--green);line-height:1.25}
+.sec-sub{font-size:12px;color:var(--muted);margin-top:4px;line-height:1.5}
+
+/* ─── CARD ─── */
+.card{background:var(--card);border-radius:var(--r);padding:16px;margin-bottom:12px;box-shadow:var(--sh);border:1px solid var(--border)}
+.card-title{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;padding-bottom:10px;margin-bottom:12px;border-bottom:1px solid var(--border)}
+
+/* ─── FIELDS ─── */
+.field{margin-bottom:14px}
+.field:last-child{margin-bottom:0}
+label{display:block;font-size:13px;font-weight:600;color:var(--text);margin-bottom:6px}
+.req{color:var(--error);margin-left:2px}
+.opt{color:var(--muted);font-weight:400;font-size:11px;margin-left:3px}
+input[type="text"],input[type="number"],input[type="date"],textarea,select{
+  width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:var(--rs);
+  font-size:14px;color:var(--text);background:#FAFCF9;transition:border-color .2s;-webkit-appearance:none;appearance:none}
+input:focus,textarea:focus,select:focus{outline:none;border-color:var(--green);background:#fff}
+textarea{resize:vertical;min-height:72px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.unit-wrap{position:relative;display:flex;align-items:center}
+.unit-wrap input{flex:1;padding-right:52px}
+.unit-tag{position:absolute;right:10px;font-size:11px;color:var(--muted);font-weight:600;pointer-events:none;white-space:nowrap}
+
+/* ─── CHIPS ─── */
+.chip-group{display:flex;flex-wrap:wrap;gap:7px;margin-top:6px}
+.chip{padding:7px 13px;border-radius:20px;border:1.5px solid var(--border);background:var(--green-pale);color:var(--text);font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;user-select:none;line-height:1.3}
+.chip:hover{border-color:var(--green);background:#DCE9D5}
+.chip.on{background:var(--green);color:#fff;border-color:var(--green)}
+.chip-lg{font-size:16px;font-weight:700;padding:12px 22px;border-radius:var(--rs)}
+.other-in{display:none;margin-top:8px;width:100%;padding:8px 12px;border:1.5px solid var(--border);border-radius:var(--rs);font-size:13px;background:#FAFCF9}
+.other-in:focus{outline:none;border-color:var(--green)}
+
+/* ─── SETUP BANNER ─── */
+.setup-banner{background:linear-gradient(135deg,#1F5C00,#2D7A00);border-radius:var(--r);padding:20px;margin:14px 0;color:#fff;text-align:center}
+.setup-banner h3{font-size:16px;margin-bottom:5px}
+.setup-banner p{font-size:12px;opacity:.75;margin-bottom:14px;line-height:1.5}
+.setup-banner .chip-group{justify-content:center}
+.setup-banner .chip{background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.3);color:#fff;font-size:17px;font-weight:700;padding:13px 28px}
+.setup-banner .chip.on{background:var(--gold);border-color:var(--gold);color:#1A1400}
+
+/* ─── INFO BOX ─── */
+.info-box{background:#FFF8DF;border-left:3px solid var(--gold);padding:9px 12px;font-size:12px;color:#6B5500;margin-bottom:14px;border-radius:0 var(--rs) var(--rs) 0;line-height:1.5}
+
+/* ─── CONDITIONAL SECTION ─── */
+.cond-sec{display:none;background:#F0F6EC;border:1px solid #C8DDB8;border-radius:var(--rs);padding:14px;margin-top:10px}
+.cond-title{font-size:13px;font-weight:700;color:var(--green);margin-bottom:12px;display:flex;align-items:center;gap:6px}
+
+/* ─── YEAR TABS ─── */
+.year-tabs-wrap{border-bottom:2px solid var(--border);margin-bottom:14px;display:flex;gap:2px}
+.y-tab{padding:9px 14px;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;margin-bottom:-2px;transition:color .2s,border-color .2s;border-radius:6px 6px 0 0}
+.y-tab.on{color:var(--green);border-bottom-color:var(--green);background:rgba(31,92,0,.06)}
+.y-content{display:none}
+.y-content.on{display:block}
+
+/* ─── SEASON ACCORDION ─── */
+.season-blk{border:1px solid var(--border);border-radius:var(--rs);margin-bottom:9px;overflow:hidden}
+.season-hd{display:flex;align-items:center;justify-content:space-between;padding:11px 14px;background:var(--green-pale);cursor:pointer;user-select:none;transition:background .15s}
+.season-hd:hover{background:#DCE9D5}
+.season-hd.open{background:#C8DDB8}
+.season-ttl{font-size:13px;font-weight:700;color:var(--green)}
+.chevron{width:18px;height:18px;transition:transform .2s;flex-shrink:0;color:var(--green)}
+.season-hd.open .chevron{transform:rotate(180deg)}
+.season-body{display:none;padding:14px}
+.season-hd.open+.season-body{display:block}
+
+/* ─── PUPUK BLOCKS ─── */
+.pup-blk{background:#F8FBF6;border:1px dashed #B8D4A8;border-radius:var(--rs);padding:12px;margin-bottom:10px}
+.pup-ttl{font-size:11px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px}
+
+/* ─── NAVIGATION ─── */
+.nav{display:flex;gap:10px;margin-top:22px;padding-top:16px;border-top:1px solid var(--border)}
+.btn{padding:12px 18px;border-radius:var(--rs);font-size:14px;font-weight:600;cursor:pointer;border:none;transition:all .15s}
+.btn-back{background:#fff;color:var(--text);border:1.5px solid var(--border);min-width:90px}
+.btn-back:hover{background:var(--green-pale)}
+.btn-next{background:var(--green);color:#fff;flex:1}
+.btn-next:hover{background:var(--green-mid)}
+.btn-export{background:var(--gold);color:#1A1400;flex:1;font-size:15px}
+.btn-export:hover{background:#B38600}
+.btn-copy{background:var(--green-pale);color:var(--green);border:1.5px solid var(--green);font-size:13px;padding:9px 14px}
+
+/* ─── EXPORT ─── */
+.export-box{background:#0D2800;border-radius:var(--rs);padding:14px;font-family:'Courier New',monospace;font-size:11px;color:#A8D89C;overflow:auto;max-height:260px;white-space:pre;margin-bottom:12px;line-height:1.6}
+.export-actions{display:flex;gap:8px;margin-bottom:16px}
+.done-banner{background:linear-gradient(135deg,#1F5C00,#2D7A00);border-radius:var(--r);padding:20px;text-align:center;color:#fff;margin-bottom:16px}
+.done-banner h2{font-size:18px;margin-bottom:6px}
+.done-banner p{font-size:12px;opacity:.8}
+
+/* ─── SUBMIT STATES ─── */
+.submit-btn-row{display:flex;gap:8px;margin-bottom:10px}
+.send-state{display:none;padding:13px 16px;border-radius:var(--rs);font-size:14px;font-weight:600;margin-bottom:10px;line-height:1.5;text-align:center}
+.send-loading{background:#FFF9E6;color:#7A5700;border:1px solid #E6C800}
+.send-success{background:#E8F5E2;color:#1F5C00;border:1px solid #8DC878}
+.send-error{background:#FDE8E8;color:#7A0000;border:1px solid #E8B4B4}
+.spinner{display:inline-block;width:13px;height:13px;border:2px solid rgba(122,87,0,.25);border-top-color:#7A5700;border-radius:50%;animation:spin .8s linear infinite;margin-right:6px;vertical-align:middle}
+@keyframes spin{to{transform:rotate(360deg)}}
+/* ─── MISC ─── */
+@media(max-width:380px){.row2{grid-template-columns:1fr}.chip-lg{padding:10px 16px;font-size:14px}}
+.tag-pre{background:var(--green-pale);color:var(--green);font-size:11px;font-weight:700;padding:2px 7px;border-radius:4px}
+.separator{border:none;border-top:1px solid var(--border);margin:14px 0}
+
+/* ─── FARMER DROPDOWN ─── */
+.farmer-state{padding:14px 16px;border-radius:var(--rs);font-size:14px;font-weight:600;margin-bottom:12px;text-align:center;line-height:1.6}
+.farmer-loading{background:var(--green-pale);color:var(--green);border:1px solid var(--border)}
+.farmer-error{background:#FDE8E8;color:#7A0000;border:1px solid #E8B4B4;font-size:13px}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236B7B63' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px;cursor:pointer}
+select:disabled{background-color:#F0F0F0;color:#999;cursor:not-allowed}
+input[readonly]{background:#F0F6EC !important;color:var(--green) !important;cursor:default;border-color:#C8DDB8 !important}
+.auto-label{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.auto-label label{margin-bottom:0}
+.auto-badge{font-size:10px;font-weight:700;color:var(--green);background:#C8DDB8;padding:2px 7px;border-radius:4px;letter-spacing:.4px}
+.contact-admin{background:#FFF8DF;border:1.5px solid var(--gold);border-radius:var(--rs);padding:12px 14px;font-size:12px;color:#6B5500;margin-top:12px;text-align:center;line-height:1.6}
+.contact-admin strong{display:block;font-size:13px;margin-bottom:3px;color:#5A4400}
+
+/* ─── BASELINE SECTION NAV ─── */
+#baseline-nav{display:none;background:var(--card);border-bottom:2px solid var(--border);position:sticky;top:83px;z-index:90;box-shadow:0 2px 6px rgba(0,0,0,.07)}
+.bl-nav-scroll{display:flex;gap:4px;padding:8px 14px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.bl-nav-scroll::-webkit-scrollbar{display:none}
+.bl-nav-tab{flex-shrink:0;padding:6px 12px;border-radius:20px;border:1.5px solid var(--border);background:var(--green-pale);color:var(--text);font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;transition:all .15s;line-height:1.3}
+.bl-nav-tab:hover{border-color:var(--green);background:#DCE9D5}
+.bl-nav-tab.active{background:var(--green);color:#fff;border-color:var(--green)}
+
+/* ─── PRE-SCREENS ─── */
+.pre-screen{animation:fadeUp .22s ease}
+.welcome-hd{text-align:center;padding:28px 0 18px}
+.welcome-hd h2{font-size:21px;font-weight:700;color:var(--green);margin-bottom:5px}
+.welcome-hd p{font-size:13px;color:var(--muted);line-height:1.5}
+.menu-card{background:var(--card);border:1.5px solid var(--border);border-radius:var(--r);padding:16px;margin-bottom:10px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:border-color .2s,background .2s;user-select:none;box-shadow:var(--sh)}
+.menu-card:hover{border-color:var(--green);background:#F8FBF6}
+.menu-card:active{background:var(--green-pale);transform:scale(.99)}
+.menu-icon{font-size:22px;flex-shrink:0;width:44px;height:44px;display:flex;align-items:center;justify-content:center;background:var(--green-pale);border-radius:10px}
+.menu-content{flex:1}
+.menu-title{font-size:15px;font-weight:700;color:var(--green);margin-bottom:3px}
+.menu-desc{font-size:12px;color:var(--muted);line-height:1.5}
+.farmer-check-item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:.5px solid var(--border);cursor:pointer}
+.farmer-check-item:last-child{border-bottom:none}
+.farmer-check-item input[type="checkbox"]{width:18px;height:18px;cursor:pointer;accent-color:var(--green);flex-shrink:0}
+.check-name{font-size:13px;font-weight:600;color:var(--text)}
+.check-id{font-size:11px;color:var(--muted);margin-top:1px}
+.cc-actions{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
+
+/* ─── HINT TEXT ─── */
+.hint{font-size:11px;color:var(--muted);margin-top:4px;line-height:1.4}
+.hint strong{color:var(--text);font-weight:600}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════ HEADER ══════════════════ -->
+<header class="app-header">
+<div class="container">
+  <div class="hd-top">
+    <svg class="hd-logo" viewBox="0 0 40 40" fill="none">
+      <rect width="40" height="40" rx="8" fill="#CC9900"/>
+      <path d="M20 7c0 0-1 4 0 7s4 4 4 8-3 5-4 5" stroke="#1F5C00" stroke-width="2.2" stroke-linecap="round"/>
+      <path d="M20 7c0 0 1 4 0 7s-4 4-4 8 3 5 4 5" stroke="#1F5C00" stroke-width="2.2" stroke-linecap="round"/>
+      <line x1="20" y1="27" x2="20" y2="34" stroke="#1F5C00" stroke-width="2.2" stroke-linecap="round"/>
+      <path d="M16 14c-2-1-5-1-5 2" stroke="#1F5C00" stroke-width="1.8" stroke-linecap="round"/>
+      <path d="M24 14c2-1 5-1 5 2" stroke="#1F5C00" stroke-width="1.8" stroke-linecap="round"/>
+    </svg>
+    <div>
+      <div class="hd-title">Rize Farm</div>
+      <div class="hd-sub">Survei Petani — Program Karbon AWD</div>
+    </div>
+  </div>
+  <div class="prog-bar"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+  <div class="prog-label" id="progLabel">Langkah 1 dari 12</div>
+</div>
+</header>
+
+<!-- ══════════════════ BASELINE SECTION NAV ══════════════════ -->
+<div id="baseline-nav">
+  <div class="bl-nav-scroll">
+    <button class="bl-nav-tab" data-step="4"  onclick="jumpToStep(4)" >🌾 Hasil Panen</button>
+    <button class="bl-nav-tab" data-step="5"  onclick="jumpToStep(5)" >🌱 Pasca Panen</button>
+    <button class="bl-nav-tab" data-step="6"  onclick="jumpToStep(6)" >🚜 Persiapan Lahan</button>
+    <button class="bl-nav-tab" data-step="7"  onclick="jumpToStep(7)" >🌿 Metode Tanam</button>
+    <button class="bl-nav-tab" data-step="8"  onclick="jumpToStep(8)" >💧 Pengelolaan Air</button>
+    <button class="bl-nav-tab" data-step="9"  onclick="jumpToStep(9)" >🌿 Pupuk</button>
+    <button class="bl-nav-tab" data-step="10" onclick="jumpToStep(10)">🐛 Hama</button>
+  </div>
+</div>
+
+<!-- ══════════════════ PRE-SCREENS ══════════════════ -->
+<div id="pre-screens">
+<div class="container">
+
+  <!-- SCREEN: Main Menu -->
+  <div id="pre-main" class="pre-screen">
+    <div class="welcome-hd">
+      <h2>Selamat Datang 👋</h2>
+      <p>Pilih section yang ingin kamu isi hari ini.</p>
+    </div>
+    <div class="menu-card" onclick="goCC()">
+      <div class="menu-icon">📋</div>
+      <div class="menu-content">
+        <div class="menu-title">Carbon Contract</div>
+        <div class="menu-desc">Tandai petani yang sudah mendapatkan carbon contract dan upload dokumen buktinya.</div>
+      </div>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="flex-shrink:0;color:var(--muted)"><polyline points="9 18 15 12 9 6"/></svg>
+    </div>
+    <div class="menu-card" onclick="goBaseline()">
+      <div class="menu-icon">🌾</div>
+      <div class="menu-content">
+        <div class="menu-title">Baseline Survey</div>
+        <div class="menu-desc">Isi data historis petani per-individu untuk keperluan MRV program AWD.</div>
+      </div>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="flex-shrink:0;color:var(--muted)"><polyline points="9 18 15 12 9 6"/></svg>
+    </div>
+  </div>
+
+  <!-- SCREEN: Carbon Contract -->
+  <div id="pre-cc" class="pre-screen" style="display:none">
+    <div class="sec-hd">
+      <div class="badge">Carbon Contract</div>
+      <div class="sec-title">Data Carbon Contract</div>
+      <div class="sec-sub">Pilih FG, tandai petani yang sudah CC, lalu upload dokumen buktinya ke Drive.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Farmer Group</div>
+      <div class="field">
+        <label for="cc_fg">Pilih FG<span class="req">*</span></label>
+        <select id="cc_fg" onchange="onCCFGChange()">
+          <option value="">— Pilih Farmer Group —</option>
+        </select>
+      </div>
+    </div>
+
+    <div id="cc-farmer-list" style="display:none">
+      <div class="card">
+        <div class="card-title">Daftar Petani — Tandai yang Sudah Carbon Contract</div>
+        <div id="cc-checklist"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Dokumen Bukti</div>
+        <div class="field">
+          <label for="cc_drive_link">Link Google Drive<span class="req">*</span></label>
+          <input type="url" id="cc_drive_link" placeholder="https://drive.google.com/...">
+          <div class="hint">Upload dokumen ke Google Drive terlebih dahulu, lalu paste link-nya di sini.</div>
+        </div>
+        <div class="field">
+          <label for="cc_notes">Catatan<span class="opt"> (opsional)</span></label>
+          <textarea id="cc_notes" placeholder="Catatan tambahan untuk admin..."></textarea>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Kirim Response</div>
+        <div class="cc-actions">
+          <button class="btn btn-next" style="width:100%;text-align:center" onclick="submitCC('continue')">Kirim CC + Lanjut ke Baseline →</button>
+          <button class="btn btn-back" style="width:100%;text-align:center" onclick="submitCC('only')">📤 Kirim CC Saja</button>
+        </div>
+        <div id="cc-send-loading" class="send-state send-loading" style="display:none"><span class="spinner"></span> Mengirim data...</div>
+        <div id="cc-send-success" class="send-state send-success" style="display:none">✅ <strong>Carbon Contract berhasil dikirim!</strong><br><span style="font-weight:400;font-size:11px">Cek sheet "CC_Responses" untuk verifikasi.</span></div>
+        <div id="cc-send-error" class="send-state send-error" style="display:none">⚠️ <strong>Gagal mengirim.</strong><br><span style="font-weight:400;font-size:11px">Periksa koneksi atau URL Apps Script.</span></div>
+      </div>
+    </div>
+
+    <div class="nav">
+      <button class="btn btn-back" onclick="showPreScreen('main')">← Kembali</button>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- ══════════════════ WIZARD ══════════════════ -->
+<main class="container" id="wizard-container" style="display:none">
+
+<!-- ══ STEP 0: SETUP ══ -->
+<section id="step-0" class="step active">
+  <div class="sec-hd">
+    <div class="badge">Setup</div>
+    <div class="sec-title">Informasi Petani</div>
+    <div class="sec-sub">Pilih Kelompok Tani lalu nama petani. Data akan terisi otomatis.</div>
+  </div>
+
+  <!-- Loading state -->
+  <div id="fl-loading" class="farmer-state farmer-loading">
+    <span class="spinner" style="border-color:rgba(31,92,0,.2);border-top-color:var(--green)"></span>
+    Memuat daftar petani...
+  </div>
+
+  <!-- Error state -->
+  <div id="fl-error" class="farmer-state farmer-error" style="display:none">
+    ⚠️ Gagal memuat daftar petani.<br>
+    <span style="font-weight:400;font-size:12px">Periksa koneksi internet lalu muat ulang halaman.</span>
+  </div>
+
+  <!-- Main form (shown after data loaded) -->
+  <div id="fl-form" style="display:none">
+    <div class="card">
+      <div class="card-title">Pilih Petani</div>
+      <div class="field">
+        <label for="select_fg">Kelompok Tani<span class="req">*</span></label>
+        <select id="select_fg" onchange="onFGChange()">
+          <option value="">— Pilih Kelompok Tani —</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="select_farmer">Nama Petani<span class="req">*</span></label>
+        <select id="select_farmer" onchange="onFarmerChange()" disabled>
+          <option value="">— Pilih dulu Kelompok Tani —</option>
+        </select>
+      </div>
+      <div class="contact-admin">
+        <strong>Nama tidak ada dalam daftar?</strong>
+        Hubungi admin Rize untuk mendaftarkan petani terlebih dahulu.
+      </div>
+    </div>
+
+    <!-- Auto-filled detail (muncul setelah petani dipilih) -->
+    <div id="fl-detail" style="display:none">
+      <div class="card">
+        <div class="card-title">Detail Petani — Auto Terisi</div>
+        <div class="row2">
+          <div class="field">
+            <div class="auto-label"><label for="farmer_id">Farmer ID</label><span class="auto-badge">AUTO</span></div>
+            <input type="text" id="farmer_id" readonly>
+          </div>
+          <div class="field">
+            <div class="auto-label"><label for="farmer_no">Nomor Petani</label><span class="auto-badge">AUTO</span></div>
+            <input type="text" id="farmer_no" readonly>
+          </div>
+        </div>
+        <div class="field">
+          <div class="auto-label"><label for="farmer_name">Nama Petani</label><span class="auto-badge">AUTO</span></div>
+          <input type="text" id="farmer_name" readonly>
+        </div>
+        <div class="row2">
+          <div class="field">
+            <div class="auto-label"><label for="season">Musim</label><span class="auto-badge">AUTO</span></div>
+            <input type="text" id="season" readonly>
+          </div>
+          <div class="field">
+            <div class="auto-label"><label for="season_no">Nomor Musim</label><span class="auto-badge">AUTO</span></div>
+            <input type="text" id="season_no" readonly>
+          </div>
+        </div>
+        <div class="row2">
+          <div class="field">
+            <div class="auto-label"><label for="fg_id">FG ID</label><span class="auto-badge">AUTO</span></div>
+            <input type="text" id="fg_id" readonly>
+          </div>
+          <div class="field">
+            <div class="auto-label"><label for="fg_name">FG Name</label><span class="auto-badge">AUTO</span></div>
+            <input type="text" id="fg_name" readonly>
+          </div>
+        </div>
+        <div class="field">
+          <div class="auto-label"><label for="jawd_name">Nama JAWD</label><span class="auto-badge">AUTO</span></div>
+          <input type="text" id="jawd_name" readonly>
+        </div>
+        <div class="row2">
+          <div class="field">
+            <div class="auto-label"><label for="awd_area">Luas Lahan AWD</label><span class="auto-badge">AUTO</span></div>
+            <div class="unit-wrap"><input type="number" id="awd_area" readonly><span class="unit-tag">Ha</span></div>
+          </div>
+          <div class="field">
+            <div class="auto-label"><label for="parcel_count">Jumlah Petak</label><span class="auto-badge">AUTO</span></div>
+            <input type="number" id="parcel_count" readonly>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="setup-banner">
+    <h3>🌾 Berapa musim padi per tahun?</h3>
+    <p>Digunakan untuk menentukan jumlah pengulangan pertanyaan di bagian baseline (Bagian 5–11).</p>
+    <div class="chip-group" data-id="seasons_per_year" data-multi="false">
+      <button type="button" class="chip chip-lg" data-value="1">1 Musim</button>
+      <button type="button" class="chip chip-lg" data-value="2">2 Musim</button>
+      <button type="button" class="chip chip-lg" data-value="3">3 Musim</button>
+    </div>
+  </div>
+
+  <div class="nav">
+    <button class="btn btn-back" onclick="showPreScreen('main')">← Menu</button>
+    <button class="btn btn-next" onclick="goNext()">Lanjut →</button>
+  </div>
+</section>
+<section id="step-1" class="step">
+  <div class="sec-hd">
+    <div class="badge">Bagian 2</div>
+    <div class="sec-title">Umpan Balik Petani</div>
+    <div class="sec-sub">Feedback dan catatan dari petani untuk program AWD.</div>
+  </div>
+  <div class="card">
+    <div class="field">
+      <label>Kategori Umpan Balik<span class="req">*</span></label>
+      <div class="chip-group" data-id="feedback_cat" data-multi="true">
+        <button type="button" class="chip" data-value="Administrasi">📋 Administrasi</button>
+        <button type="button" class="chip" data-value="Praktik AWD">💧 Praktik AWD</button>
+        <button type="button" class="chip" data-value="Penjualan & Layanan">🤝 Penjualan &amp; Layanan</button>
+      </div>
+    </div>
+    <div class="field">
+      <label for="feedback_detail">Detail Umpan Balik<span class="opt"> (opsional)</span></label>
+      <textarea id="feedback_detail" placeholder="Tuliskan umpan balik petani di sini..."></textarea>
+    </div>
+  </div>
+  <div class="nav">
+    <button class="btn btn-back" onclick="goBack()">← Kembali</button>
+    <button class="btn btn-next" onclick="goNext()">Lanjut →</button>
+  </div>
+</section>
+
+<!-- ══ STEP 2: HASIL PANEN MUSIM INI ══ -->
+<section id="step-2" class="step">
+  <div class="sec-hd">
+    <div class="badge">Bagian 3</div>
+    <div class="sec-title">Hasil Panen Musim Ini</div>
+    <div class="sec-sub">Data panen untuk musim yang sedang berjalan.</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">3A — Lahan AWD</div>
+    <div class="field">
+      <label>Tahun<span class="req">*</span></label>
+      <div class="chip-group" data-id="s3a_tahun" data-multi="false">
+        <button type="button" class="chip" data-value="2022">2022</button>
+        <button type="button" class="chip" data-value="2023">2023</button>
+        <button type="button" class="chip" data-value="2024">2024</button>
+        <button type="button" class="chip" data-value="2025">2025</button>
+        <button type="button" class="chip" data-value="2026">2026</button>
+      </div>
+    </div>
+    <div class="field">
+      <label>Musim<span class="req">*</span></label>
+      <div class="chip-group" data-id="s3a_musim" data-multi="false">
+        <button type="button" class="chip" data-value="Musim 1">Musim 1</button>
+        <button type="button" class="chip" data-value="Musim 2">Musim 2</button>
+        <button type="button" class="chip" data-value="Musim 3">Musim 3</button>
+      </div>
+    </div>
+    <div class="info-box">📊 Gunakan <strong>titik (.)</strong> untuk angka desimal — contoh: <strong>3.25</strong> ton/ha, berat <strong>50.5</strong> kg</div>
+    <div class="field">
+      <label for="s3a_tanggal">Tanggal Panen</label>
+      <input type="date" id="s3a_tanggal">
+    </div>
+    <div class="field">
+      <label>Varietas Padi</label>
+      <div class="chip-group" data-id="s3a_varietas" data-multi="false" data-has-other="s3a_varietas_other">
+        <button type="button" class="chip" data-value="Inpari 32">Inpari 32</button>
+        <button type="button" class="chip" data-value="Ciherang">Ciherang</button>
+        <button type="button" class="chip" data-value="IR64">IR64</button>
+        <button type="button" class="chip" data-value="Lainnya">Lainnya</button>
+      </div>
+      <input type="text" id="s3a_varietas_other" class="other-in" placeholder="Sebutkan varietas...">
+    </div>
+    <div class="row2">
+      <div class="field">
+        <label for="s3a_karung">Total Karung (AWD)</label>
+        <div class="unit-wrap"><input type="number" id="s3a_karung" min="0" placeholder="Contoh: 48"><span class="unit-tag">karung</span></div>
+      </div>
+      <div class="field">
+        <label for="s3a_berat">Berat Rata-rata/Karung</label>
+        <div class="unit-wrap"><input type="number" id="s3a_berat" step="0.1" min="0" placeholder="Contoh: 50.5"><span class="unit-tag">kg</span></div>
+      </div>
+    </div>
+    <div class="row2">
+      <div class="field">
+        <label for="s3a_produktivitas">Produktivitas</label>
+        <div class="unit-wrap"><input type="number" id="s3a_produktivitas" step="0.01" min="0" placeholder="Contoh: 3.25"><span class="unit-tag">ton/ha</span></div>
+      </div>
+      <div class="field">
+        <label for="s3a_harga">Harga Jual GKP</label>
+        <div class="unit-wrap"><input type="number" id="s3a_harga" min="0" placeholder="Contoh: 6500"><span class="unit-tag">IDR/kg</span></div>
+      </div>
+    </div>
+    <hr class="separator">
+    <div class="field">
+      <label>Apakah petani memiliki lahan Non-AWD?<span class="req">*</span></label>
+      <div class="chip-group" data-id="s3a_has_nonawd" data-multi="false" data-shows-cond="section3b">
+        <button type="button" class="chip" data-value="Ya">Ya — ada lahan Non-AWD</button>
+        <button type="button" class="chip" data-value="Tidak">Tidak</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="cond-sec" id="section3b">
+    <div class="cond-title">📦 3B — Lahan Non-AWD</div>
+    <div class="field">
+      <label for="s3b_luas">Luas Lahan Non-AWD</label>
+      <div class="unit-wrap"><input type="number" id="s3b_luas" step="0.01" min="0" placeholder="0"><span class="unit-tag">Ha</span></div>
+    </div>
+    <div class="field">
+      <label>Varietas Padi</label>
+      <div class="chip-group" data-id="s3b_varietas" data-multi="false" data-has-other="s3b_varietas_other">
+        <button type="button" class="chip" data-value="Inpari 32">Inpari 32</button>
+        <button type="button" class="chip" data-value="Ciherang">Ciherang</button>
+        <button type="button" class="chip" data-value="IR64">IR64</button>
+        <button type="button" class="chip" data-value="Lainnya">Lainnya</button>
+      </div>
+      <input type="text" id="s3b_varietas_other" class="other-in" placeholder="Sebutkan varietas...">
+    </div>
+    <div class="row2">
+      <div class="field">
+        <label for="s3b_karung">Total Karung (Non-AWD)</label>
+        <div class="unit-wrap"><input type="number" id="s3b_karung" min="0" placeholder="0"><span class="unit-tag">karung</span></div>
+      </div>
+      <div class="field">
+        <label for="s3b_berat">Berat Rata-rata/Karung</label>
+        <div class="unit-wrap"><input type="number" id="s3b_berat" step="0.1" min="0" placeholder="0"><span class="unit-tag">kg</span></div>
+      </div>
+    </div>
+    <div class="field">
+      <label for="s3b_total">Total Produksi</label>
+      <div class="unit-wrap"><input type="number" id="s3b_total" min="0" placeholder="0"><span class="unit-tag">kg</span></div>
+    </div>
+    <div class="field">
+      <label>Manajemen sama dengan AWD?</label>
+      <div class="chip-group" data-id="s3b_mgmt_sama" data-multi="false">
+        <button type="button" class="chip" data-value="Ya">Ya</button>
+        <button type="button" class="chip" data-value="Tidak">Tidak</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="nav">
+    <button class="btn btn-back" onclick="goBack()">← Kembali</button>
+    <button class="btn btn-next" onclick="goNext()">Lanjut →</button>
+  </div>
+</section>
+
+<!-- ══ STEP 3: PASCA PANEN MUSIM INI ══ -->
+<section id="step-3" class="step">
+  <div class="sec-hd">
+    <div class="badge">Bagian 4</div>
+    <div class="sec-title">Pasca Panen Musim Ini</div>
+    <div class="sec-sub">Pengelolaan jerami dan pengolahan lahan setelah panen.</div>
+  </div>
+  <div class="card">
+    <div class="field">
+      <label>Mekanisme Panen<span class="req">*</span></label>
+      <div class="chip-group" data-id="s4_mekpanen" data-multi="false">
+        <button type="button" class="chip" data-value="Manual">✋ Manual</button>
+        <button type="button" class="chip" data-value="Manual-Perontok">🔧 Manual-Perontok</button>
+        <button type="button" class="chip" data-value="Combine Harvester">🚜 Combine Harvester</button>
+      </div>
+    </div>
+    <div class="field">
+      <label>Metode Pengelolaan Jerami<span class="opt"> (bisa lebih dari satu)</span></label>
+      <div class="chip-group" data-id="s4_metjerami" data-multi="true">
+        <button type="button" class="chip" data-value="Dibakar">🔥 Dibakar</button>
+        <button type="button" class="chip" data-value="Dibenamkan">🌱 Dibenamkan</button>
+        <button type="button" class="chip" data-value="Diangkut">🚛 Diangkut</button>
+      </div>
+    </div>
+    <div class="row2">
+      <div class="field">
+        <label>% Jerami Dibenamkan</label>
+        <div class="chip-group" data-id="s4_pct_benam" data-multi="false">
+          <button type="button" class="chip" data-value="0%">0%</button>
+          <button type="button" class="chip" data-value="25%">25%</button>
+          <button type="button" class="chip" data-value="50%">50%</button>
+          <button type="button" class="chip" data-value="75%">75%</button>
+          <button type="button" class="chip" data-value="100%">100%</button>
+        </div>
+      </div>
+      <div class="field">
+        <label>% Jerami Dibakar</label>
+        <div class="chip-group" data-id="s4_pct_bakar" data-multi="false">
+          <button type="button" class="chip" data-value="0%">0%</button>
+          <button type="button" class="chip" data-value="25%">25%</button>
+          <button type="button" class="chip" data-value="50%">50%</button>
+          <button type="button" class="chip" data-value="75%">75%</button>
+          <button type="button" class="chip" data-value="100%">100%</button>
+        </div>
+      </div>
+    </div>
+    <div class="field">
+      <label>Metode Lain<span class="opt"> (opsional, bisa lebih dari satu)</span></label>
+      <div class="chip-group" data-id="s4_metlain" data-multi="true" data-has-other="s4_metlain_other">
+        <button type="button" class="chip" data-value="Pakan Ternak">🐄 Pakan Ternak</button>
+        <button type="button" class="chip" data-value="Kompos">♻️ Kompos</button>
+        <button type="button" class="chip" data-value="Biochar">🪵 Biochar</button>
+        <button type="button" class="chip" data-value="Lainnya">Lainnya</button>
+      </div>
+      <input type="text" id="s4_metlain_other" class="other-in" placeholder="Sebutkan metode lain...">
+    </div>
+    <div class="field">
+      <label>Waktu Pengolahan Tanah Berikutnya</label>
+      <div class="chip-group" data-id="s4_waktuolah" data-multi="false">
+        <button type="button" class="chip" data-value="Segera">⚡ Segera (&lt;14 hari)</button>
+        <button type="button" class="chip" data-value="Ditunda">⏳ Ditunda (&gt;14 hari)</button>
+      </div>
+    </div>
+  </div>
+  <div class="nav">
+    <button class="btn btn-back" onclick="goBack()">← Kembali</button>
+    <button class="btn btn-next" onclick="goNext()">Lanjut →</button>
+  </div>
+</section>
+
+<!-- ══ STEPS 4–10: BASELINE (dynamically filled) ══ -->
+<section id="step-4" class="step"></section>
+<section id="step-5" class="step"></section>
+<section id="step-6" class="step"></section>
+<section id="step-7" class="step"></section>
+<section id="step-8" class="step"></section>
+<section id="step-9" class="step"></section>
+<section id="step-10" class="step"></section>
+
+<!-- ══ STEP 11: TAMBAHAN + KIRIM ══ -->
+<section id="step-11" class="step">
+  <div class="sec-hd">
+    <div class="badge">Bagian 12 + Kirim</div>
+    <div class="sec-title">Pertanyaan Tambahan</div>
+    <div class="sec-sub">Satu pertanyaan terakhir, lalu kirim data ke spreadsheet.</div>
+  </div>
+  <div class="card">
+    <div class="field">
+      <label>Apakah petani memiliki buku catatan selama budidaya?</label>
+      <div class="chip-group" data-id="s12_buku_catatan" data-multi="false">
+        <button type="button" class="chip" data-value="Ya">📒 Ya — minta lihat buku catatan</button>
+        <button type="button" class="chip" data-value="Tidak">Tidak</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="done-banner">
+    <h2>✅ Survei Selesai!</h2>
+    <p>Semua bagian sudah terisi. Klik "Kirim Data" untuk menyimpan ke spreadsheet.</p>
+  </div>
+
+  <!-- SUBMIT ZONE -->
+  <div class="card">
+    <div class="card-title">Kirim ke Spreadsheet</div>
+
+    <!-- State: idle -->
+    <div id="send-idle">
+      <div class="submit-btn-row">
+        <button class="btn btn-export" style="flex:1" onclick="submitForm()">📤 Kirim Data ke Spreadsheet</button>
+      </div>
+      <div class="info-box">💡 Backup: jika tombol di atas gagal, gunakan ekspor JSON di bawah untuk menyimpan data secara manual.</div>
+    </div>
+
+    <!-- State: loading -->
+    <div id="send-loading" class="send-state send-loading">
+      <span class="spinner"></span> Mengirim data... Jangan tutup halaman ini.
+    </div>
+
+    <!-- State: success -->
+    <div id="send-success" class="send-state send-success">
+      ✅ <strong>Data berhasil dikirim!</strong><br>
+      <span style="font-weight:400;font-size:12px">Cek spreadsheet untuk verifikasi data sudah masuk.</span>
+    </div>
+
+    <!-- State: error -->
+    <div id="send-error" class="send-state send-error">
+      ⚠️ <strong>Gagal mengirim.</strong><br>
+      <span style="font-weight:400;font-size:12px">Periksa koneksi internet atau URL Apps Script. Salin JSON di bawah sebagai backup.</span>
+    </div>
+
+    <hr class="separator">
+    <div class="card-title" style="margin-top:4px">Ekspor JSON (Backup)</div>
+    <div class="export-box" id="exportBox">Klik "Buat JSON" untuk melihat data...</div>
+    <div class="export-actions">
+      <button class="btn btn-export" onclick="buildExport()">🔄 Buat JSON</button>
+      <button class="btn btn-copy" onclick="copyJSON()">📋 Salin</button>
+    </div>
+  </div>
+
+  <div class="nav">
+    <button class="btn btn-back" onclick="goBack()">← Kembali</button>
+  </div>
+</section>
+
+</main>
+
+<!-- ══════════════════ JAVASCRIPT ══════════════════ -->
+<script>
+/* ─── STATE ─── */
+let currentStep = 0;
+const TOTAL_STEPS = 12;
+let seasonsPerYear = null;
+let baselineGenerated = false;
+
+/* ─── CONFIG: ISI BAGIAN INI ─── */
+// Paste URL deployment Apps Script kamu di sini (lihat panduan di file Code.gs)
+const APPS_SCRIPT_URL = 'PASTE_URL_DEPLOYMENT_APPS_SCRIPT_DISINI';
+
+// Paste URL CSV dari Google Sheets (File → Share → Publish to web → pilih tab "Farmer List" → CSV)
+const FARMER_CSV_URL = 'PASTE_URL_CSV_FARMER_LIST_DISINI';
+
+/* ─── FARMER DATA STATE ─── */
+let farmerData = [];  // semua baris dari CSV
+let fgMap      = {};  // { "Nama FG": [ farmerRow, ... ] }
+
+/* ─── FIELD HELPERS (return HTML strings) ─── */
+const F = {
+  text: (id, lbl, ph='', opt=false) =>
+    `<div class="field"><label for="${id}">${lbl}${opt?'<span class="opt"> (opsional)</span>':''}</label><input type="text" id="${id}" placeholder="${ph}"></div>`,
+
+  num: (id, lbl, unit='', opt=false, ph='0', hint='') =>
+    `<div class="field"><label for="${id}">${lbl}${opt?'<span class="opt"> (opsional)</span>':''}</label><div class="unit-wrap"><input type="number" id="${id}" step="0.01" min="0" placeholder="${ph}">${unit?`<span class="unit-tag">${unit}</span>`:''}</div>${hint?`<div class="hint">${hint}</div>`:''}</div>`,
+
+  date: (id, lbl) =>
+    `<div class="field"><label for="${id}">${lbl}</label><input type="date" id="${id}"></div>`,
+
+  chips: (id, lbl, opts, multi=false, opt=false) => {
+    const btns = opts.map(o=>`<button type="button" class="chip" data-value="${o}">${o}</button>`).join('');
+    const other = opts.includes('Lainnya') ? `<input type="text" id="${id}_other" class="other-in" placeholder="Sebutkan...">` : '';
+    const otherAttr = opts.includes('Lainnya') ? `data-has-other="${id}_other"` : '';
+    return `<div class="field"><label>${lbl}${opt?'<span class="opt"> (opsional)</span>':''}</label><div class="chip-group" data-id="${id}" data-multi="${multi}" ${otherAttr}>${btns}</div>${other}</div>`;
+  },
+
+  pct: (id, lbl) => F.chips(id, lbl, ['0%','25%','50%','75%','100%']),
+
+  irigasi: (id, lbl) =>
+    `<div class="field"><label>${lbl}</label>
+     <div class="chip-group" data-id="${id}_mode" data-multi="false" data-shows-manual="${id}_wrap">
+       <button type="button" class="chip" data-value="Continuous Flooding">💧 Continuous Flooding</button>
+       <button type="button" class="chip" data-value="Isi Manual">Isi Jumlah</button>
+     </div>
+     <div id="${id}_wrap" style="display:none;margin-top:8px">
+       <div class="unit-wrap"><input type="number" id="${id}" min="0" step="1" placeholder="Contoh: 12"><span class="unit-tag">kali</span></div>
+       <div class="hint">Jumlah total masuknya air irigasi dalam satu musim tanam</div>
+     </div></div>`,
+
+  row2: (...items) => `<div class="row2">${items.join('')}</div>`,
+};
+
+/* ─── BASELINE SECTION DEFINITIONS ─── */
+const BASELINE_DEFS = [
+  {
+    id:'b5', step:4, badge:'Bagian 5', title:'Baseline: Hasil Panen',
+    sub:'Data panen historis sebelum bergabung program AWD.',
+    fields: (y,s) => [
+      `<div class="info-box">📊 Gunakan <strong>titik (.)</strong> untuk angka desimal — contoh produktivitas: <strong>3.25</strong> ton/ha, berat: <strong>50.5</strong> kg</div>`,
+      F.date(`b5_${y}_${s}_tgl`, 'Tanggal Panen'),
+      F.chips(`b5_${y}_${s}_varietas`, 'Varietas Padi', ['Inpari 32','Ciherang','IR64','Lainnya']),
+      F.row2(
+        F.num(`b5_${y}_${s}_karung`, 'Total Karung (AWD)', 'karung', false, 'Contoh: 48'),
+        F.num(`b5_${y}_${s}_berat`, 'Berat Rata-rata/Karung', 'kg', false, 'Contoh: 50.5')
+      ),
+      F.row2(
+        F.num(`b5_${y}_${s}_prod`, 'Produktivitas', 'ton/ha', false, 'Contoh: 3.25'),
+        F.num(`b5_${y}_${s}_harga`, 'Harga Jual GKP', 'IDR/kg', false, 'Contoh: 6500')
+      ),
+    ]
+  },
+  {
+    id:'b6', step:5, badge:'Bagian 6', title:'Baseline: Pasca Panen',
+    sub:'Pengelolaan jerami dan pasca panen historis.',
+    fields: (y,s) => [
+      F.chips(`b6_${y}_${s}_mek`, 'Mekanisme Panen', ['Manual','Manual-Perontok','Combine Harvester']),
+      F.chips(`b6_${y}_${s}_metjrm`, 'Metode Pengelolaan Jerami', ['Dibakar','Dibenamkan','Diangkut'], true),
+      F.row2(
+        F.pct(`b6_${y}_${s}_pct_benam`, '% Jerami Dibenamkan'),
+        F.pct(`b6_${y}_${s}_pct_bakar`, '% Jerami Dibakar')
+      ),
+      F.chips(`b6_${y}_${s}_metlain`, 'Metode Lain', ['Pakan Ternak','Kompos','Biochar','Lainnya'], true, true),
+      F.chips(`b6_${y}_${s}_waktu`, 'Waktu Pengolahan Tanah', ['Segera (<14 hari)','Ditunda (>14 hari)']),
+    ]
+  },
+  {
+    id:'b7', step:6, badge:'Bagian 7', title:'Baseline: Persiapan Lahan',
+    sub:'Metode pengolahan tanah historis.',
+    fields: (y,s) => [
+      F.chips(`b7_${y}_${s}_met`, 'Metode Persiapan Lahan', ['Tanpa Olah Tanah','Disk/Chisel','Mold Board','Metode Dalam']),
+      F.chips(`b7_${y}_${s}_frek`, 'Frekuensi Persiapan', ['1','2','>2']),
+      F.chips(`b7_${y}_${s}_waktu`, 'Waktu Sebelum Tanam', ['<6 hari','7–14 hari','>15 hari']),
+      F.chips(`b7_${y}_${s}_pct`, 'Persentase Padi', ['100%','99–70%','<70%']),
+      F.chips(`b7_${y}_${s}_jeda`, 'Jeda Antar Musim', ['>180 hari','<180 hari']),
+    ]
+  },
+  {
+    id:'b8', step:7, badge:'Bagian 8', title:'Baseline: Metode Tanam',
+    sub:'Cara penanaman dan jadwal historis.',
+    fields: (y,s) => [
+      F.chips(`b8_${y}_${s}_met`, 'Metode Tanam', ['Tabur Langsung','Transplanting Manual','Mesin Transplanting']),
+      F.row2(
+        F.num(`b8_${y}_${s}_umur`, 'Umur Bibit (hari)', 'HST'),
+        F.num(`b8_${y}_${s}_durasi`, 'Durasi Padi', 'hari')
+      ),
+      F.date(`b8_${y}_${s}_tgl`, 'Tanggal Pindah Tanam'),
+    ]
+  },
+  {
+    id:'b9', step:8, badge:'Bagian 9', title:'Baseline: Pengelolaan Air',
+    sub:'Sumber air dan tinggi air per fase pertumbuhan.',
+    fields: (y,s) => [
+      `<div class="info-box">📐 Tinggi air dalam <strong>cm</strong>. Gunakan <strong>titik (.)</strong> untuk desimal — contoh: <strong>2.5</strong> cm. Isi <strong>0</strong> jika fase tersebut tidak ada air.</div>`,
+      F.chips(`b9_${y}_${s}_sumber`, 'Sumber Air', ['Sungai','Saluran Irigasi','Waduk','Air Tanah','Lainnya']),
+      F.row2(
+        F.num(`b9_${y}_${s}_veg`,  'Tinggi Air — Vegetatif (0–45 HST)',        'cm', false, 'Contoh: 5.0'),
+        F.num(`b9_${y}_${s}_inim`, 'Tinggi Air — Inisiasi Malai (46–60 HST)', 'cm', false, 'Contoh: 3.0')
+      ),
+      F.row2(
+        F.num(`b9_${y}_${s}_bunga`, 'Tinggi Air — Berbunga (60–80 HST)', 'cm', false, 'Contoh: 2.5'),
+        F.num(`b9_${y}_${s}_masak`, 'Tinggi Air — Masak (80–100 HST)',   'cm', false, 'Contoh: 0.5')
+      ),
+      F.irigasi(`b9_${y}_${s}_jml`, 'Jumlah Irigasi per Musim'),
+    ]
+  },
+  {
+    id:'b10', step:9, badge:'Bagian 10', title:'Baseline: Pengelolaan Pupuk',
+    sub:'Hingga 3 kali pemupukan per musim. Tiap pemupukan maks 3 jenis pupuk.',
+    special: true
+  },
+  {
+    id:'b11', step:10, badge:'Bagian 11', title:'Baseline: Pengelolaan Hama',
+    sub:'Hama dan penanganan historis per musim.',
+    fields: (y,s) => [
+      F.text(`b11_${y}_${s}_hama`, 'Hama Utama', 'Contoh: walang sangit, tikus'),
+      F.chips(`b11_${y}_${s}_cara`, 'Cara Penanganan', ['Manual','Hayati','Kimia'], true),
+      F.text(`b11_${y}_${s}_perlakuan`, 'Perlakuan (jika Hayati)', 'Predator, feromon, dll.', true),
+      F.text(`b11_${y}_${s}_produk`, 'Produk yang Digunakan (jika Kimia)', 'Nama pestisida', true),
+    ]
+  },
+];
+
+/* ─── PUPUK RENDERER ─── */
+function renderPupuk(y, s) {
+  let html = `<div class="info-box">💊 Catat hingga 3 kali pemupukan. Pemupukan ke-2 dan ke-3 bersifat opsional.</div>`;
+  for (let p = 1; p <= 3; p++) {
+    const opt = p > 1;
+    html += `<div class="pup-blk">
+      <div class="pup-ttl">🌿 Pemupukan ke-${p}${opt?' (opsional)':''}</div>
+      ${F.num(`b10_${y}_${s}_${p}_hst`, 'Kapan dilakukan? (HST)', 'HST', opt)}
+      ${F.row2(
+        F.text(`b10_${y}_${s}_${p}_p1n`, 'Pupuk 1 — Nama', '', opt),
+        F.num(`b10_${y}_${s}_${p}_p1j`, 'Pupuk 1 — Jumlah', 'kg', opt)
+      )}
+      ${F.row2(
+        F.text(`b10_${y}_${s}_${p}_p2n`, 'Pupuk 2 — Nama', '', true),
+        F.num(`b10_${y}_${s}_${p}_p2j`, 'Pupuk 2 — Jumlah', 'kg', true)
+      )}
+      ${F.row2(
+        F.text(`b10_${y}_${s}_${p}_p3n`, 'Pupuk 3 — Nama', '', true),
+        F.num(`b10_${y}_${s}_${p}_p3j`, 'Pupuk 3 — Jumlah', 'kg', true)
+      )}
+    </div>`;
+  }
+  return html;
+}
+
+/* ─── BASELINE STEP RENDERER ─── */
+function renderBaselineStep(def, numSeasons) {
+  // Year tabs
+  let tabs = `<div class="year-tabs-wrap">`;
+  for (let y = 1; y <= 3; y++) tabs += `<button class="y-tab${y===1?' on':''}" data-year="${y}" onclick="switchYear(this)">Tahun ${y}</button>`;
+  tabs += `</div>`;
+
+  // Year contents
+  let contents = '';
+  for (let y = 1; y <= 3; y++) {
+    let seasons = '';
+    for (let s = 1; s <= numSeasons; s++) {
+      const bodyHtml = def.special ? renderPupuk(y, s) : def.fields(y, s).join('');
+      seasons += `
+        <div class="season-blk">
+          <div class="season-hd${s===1?' open':''}" onclick="toggleSeason(this)">
+            <span class="season-ttl">🌱 Musim ${s}</span>
+            <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+          <div class="season-body" style="${s===1?'display:block':''}">
+            ${bodyHtml}
+          </div>
+        </div>`;
+    }
+    contents += `
+      <div class="y-content${y===1?' on':''}" data-year="${y}">
+        <div class="field" style="margin-bottom:14px">
+          <label>Tahun ini merujuk ke:</label>
+          <div class="chip-group" data-id="${def.id}_y${y}_actual" data-multi="false">
+            <button type="button" class="chip" data-value="2022">2022</button>
+            <button type="button" class="chip" data-value="2023">2023</button>
+            <button type="button" class="chip" data-value="2024">2024</button>
+            <button type="button" class="chip" data-value="2025">2025</button>
+            <button type="button" class="chip" data-value="2026">2026</button>
+          </div>
+        </div>
+        ${seasons}
+      </div>`;
+  }
+
+  return `
+    <div class="sec-hd">
+      <div class="badge">${def.badge}</div>
+      <div class="sec-title">${def.title}</div>
+      <div class="sec-sub">${def.sub}</div>
+    </div>
+    <div class="card">
+      ${tabs}
+      ${contents}
+    </div>
+    <div class="nav">
+      <button class="btn btn-back" onclick="goBack()">← Kembali</button>
+      <button class="btn btn-next" onclick="goNext()">Lanjut →</button>
+    </div>`;
+}
+
+/* ─── GENERATE BASELINE STEPS ─── */
+function generateBaselineSteps(numSeasons) {
+  if (baselineGenerated) return;
+  BASELINE_DEFS.forEach(def => {
+    document.getElementById(`step-${def.step}`).innerHTML = renderBaselineStep(def, numSeasons);
+  });
+  baselineGenerated = true;
+}
+
+/* ─── FARMER DATA: LOAD & DROPDOWN ─── */
+
+async function loadFarmerData() {
+  if (FARMER_CSV_URL === 'PASTE_URL_CSV_FARMER_LIST_DISINI') {
+    // Dev mode: skip loading, show form immediately for testing
+    document.getElementById('fl-loading').style.display = 'none';
+    document.getElementById('fl-form').style.display = 'block';
+    return;
+  }
+  try {
+    const res  = await fetch(FARMER_CSV_URL);
+    const text = await res.text();
+    farmerData = parseCSV(text);
+
+    // Build fgMap: { fgName: [rows] }
+    farmerData.forEach(row => {
+      const fg = (row['FG Name'] || '').trim();
+      if (!fg) return;
+      if (!fgMap[fg]) fgMap[fg] = [];
+      fgMap[fg].push(row);
+    });
+
+    // Populate FG dropdown
+    const sel = document.getElementById('select_fg');
+    Object.keys(fgMap).sort().forEach(fg => {
+      const opt = document.createElement('option');
+      opt.value = fg;
+      opt.textContent = fg;
+      sel.appendChild(opt);
+    });
+
+    document.getElementById('fl-loading').style.display = 'none';
+    document.getElementById('fl-form').style.display = 'block';
+
+  } catch (err) {
+    document.getElementById('fl-loading').style.display = 'none';
+    document.getElementById('fl-error').style.display = 'block';
+  }
+}
+
+function onFGChange() {
+  const fg          = document.getElementById('select_fg').value;
+  const farmerSel   = document.getElementById('select_farmer');
+  const detail      = document.getElementById('fl-detail');
+
+  // Reset farmer dropdown and hide detail
+  farmerSel.innerHTML = '<option value="">— Pilih Nama Petani —</option>';
+  farmerSel.disabled  = !fg;
+  detail.style.display = 'none';
+  clearFarmerFields();
+
+  if (!fg) return;
+
+  (fgMap[fg] || []).forEach(row => {
+    const opt = document.createElement('option');
+    opt.value       = row['Farmer ID'] || '';
+    opt.textContent = row['Farmer Name'] || '';
+    farmerSel.appendChild(opt);
+  });
+}
+
+function onFarmerChange() {
+  const farmerId = document.getElementById('select_farmer').value;
+  const detail   = document.getElementById('fl-detail');
+
+  if (!farmerId) { detail.style.display = 'none'; clearFarmerFields(); return; }
+
+  const farmer = farmerData.find(r => (r['Farmer ID'] || '').trim() === farmerId);
+  if (!farmer) return;
+
+  // Auto-fill readonly fields
+  document.getElementById('farmer_id').value    = farmer['Farmer ID']    || '';
+  document.getElementById('farmer_no').value    = farmer['Nomor Petani'] || '';
+  document.getElementById('farmer_name').value  = farmer['Farmer Name']  || '';
+  document.getElementById('fg_id').value        = farmer['FG ID']        || '';
+  document.getElementById('fg_name').value      = farmer['FG Name']      || '';
+  document.getElementById('jawd_name').value    = farmer['JAWD Name']    || '';
+  document.getElementById('awd_area').value     = farmer['AWD Area']     || '';
+  document.getElementById('parcel_count').value = farmer['Parcel Count'] || '';
+  document.getElementById('season').value       = farmer['Season']       || '';
+  document.getElementById('season_no').value    = farmer['Season No']    || '';
+
+  detail.style.display = 'block';
+  saveData();
+}
+
+function clearFarmerFields() {
+  ['farmer_id','farmer_no','farmer_name','fg_id','fg_name','jawd_name','awd_area','parcel_count','season','season_no']
+    .forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+}
+
+/* ─── CSV PARSER ─── */
+
+function parseCSV(text) {
+  const lines = text.replace(/\r/g, '').trim().split('\n');
+  if (lines.length < 2) return [];
+  const headers = parseCSVLine(lines[0]);
+  return lines.slice(1).map(line => {
+    const vals = parseCSVLine(line);
+    const row  = {};
+    headers.forEach((h, i) => { row[h.trim()] = (vals[i] || '').trim(); });
+    return row;
+  });
+}
+
+function parseCSVLine(line) {
+  const result = [];
+  let cur = '', inQ = false;
+  for (let i = 0; i < line.length; i++) {
+    const c = line[i];
+    if (c === '"') {
+      if (inQ && line[i+1] === '"') { cur += '"'; i++; }  // escaped quote
+      else inQ = !inQ;
+    } else if (c === ',' && !inQ) {
+      result.push(cur); cur = '';
+    } else {
+      cur += c;
+    }
+  }
+  result.push(cur);
+  return result;
+}
+
+/* ─── PRE-SCREEN NAVIGATION ─── */
+
+function showPreScreen(which) {
+  document.getElementById('pre-main').style.display        = 'none';
+  document.getElementById('pre-cc').style.display          = 'none';
+  document.getElementById('pre-screens').style.display     = 'none';
+  document.getElementById('wizard-container').style.display = 'none';
+  document.getElementById('baseline-nav').style.display    = 'none';
+  document.getElementById('progFill').style.width          = '0%';
+
+  if (which === 'wizard') {
+    document.getElementById('wizard-container').style.display = 'block';
+    updateProgress();
+    updateBaselineNav();
+  } else {
+    document.getElementById('pre-screens').style.display = 'block';
+    if (which === 'main') {
+      document.getElementById('pre-main').style.display = 'block';
+      document.getElementById('progLabel').textContent  = 'Pilih section yang ingin diisi';
+    } else if (which === 'cc') {
+      document.getElementById('pre-cc').style.display  = 'block';
+      document.getElementById('progLabel').textContent  = 'Carbon Contract';
+    }
+  }
+}
+
+function goCC() {
+  const sel = document.getElementById('cc_fg');
+  sel.innerHTML = '<option value="">— Pilih Farmer Group —</option>';
+  if (Object.keys(fgMap).length > 0) {
+    Object.keys(fgMap).sort().forEach(fg => {
+      const opt = document.createElement('option');
+      opt.value = fg; opt.textContent = fg;
+      sel.appendChild(opt);
+    });
+  } else {
+    const opt = document.createElement('option');
+    opt.textContent = 'Data petani belum termuat — pastikan FARMER_CSV_URL sudah diisi';
+    opt.disabled = true;
+    sel.appendChild(opt);
+  }
+  showPreScreen('cc');
+}
+
+function goBaseline() {
+  // Ensure current wizard step is active before showing
+  document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+  document.getElementById(`step-${currentStep}`).classList.add('active');
+  showPreScreen('wizard');
+}
+
+function onCCFGChange() {
+  const fg        = document.getElementById('cc_fg').value;
+  const listDiv   = document.getElementById('cc-farmer-list');
+  const checklist = document.getElementById('cc-checklist');
+
+  ['cc-send-loading','cc-send-success','cc-send-error']
+    .forEach(id => { document.getElementById(id).style.display = 'none'; });
+
+  if (!fg) { listDiv.style.display = 'none'; return; }
+
+  const farmers = fgMap[fg] || [];
+  checklist.innerHTML = farmers.length === 0
+    ? '<div class="info-box">Tidak ada petani ditemukan untuk FG ini.</div>'
+    : farmers.map(f => `
+        <label class="farmer-check-item">
+          <input type="checkbox" value="${f['Farmer Name'] || ''}"
+                 data-farmer-id="${f['Farmer ID'] || ''}"
+                 data-farmer-no="${f['Nomor Petani'] || ''}">
+          <div>
+            <div class="check-name">${f['Farmer Name'] || '—'}</div>
+            <div class="check-id">${f['Farmer ID'] || ''}${f['Nomor Petani'] ? ' · No. ' + f['Nomor Petani'] : ''}</div>
+          </div>
+        </label>`).join('');
+
+  listDiv.style.display = 'block';
+}
+
+async function submitCC(mode) {
+  const fg        = document.getElementById('cc_fg').value;
+  const driveLink = document.getElementById('cc_drive_link').value.trim();
+
+  if (!fg)        { alert('Pilih Farmer Group terlebih dahulu.'); return; }
+  if (!driveLink) { alert('Isi link Google Drive terlebih dahulu.'); return; }
+
+  const checkedFarmers = [];
+  document.querySelectorAll('#cc-checklist input[type="checkbox"]:checked').forEach(cb => {
+    checkedFarmers.push({
+      farmer_id:   cb.dataset.farmerId,
+      farmer_no:   cb.dataset.farmerNo,
+      farmer_name: cb.value
+    });
+  });
+  if (checkedFarmers.length === 0) {
+    alert('Tandai minimal satu petani yang sudah carbon contract.');
+    return;
+  }
+
+  if (APPS_SCRIPT_URL === 'PASTE_URL_DEPLOYMENT_APPS_SCRIPT_DISINI') {
+    alert('URL Apps Script belum diisi.\nCari baris: const APPS_SCRIPT_URL = ...');
+    return;
+  }
+
+  const data = {
+    type: 'carbon_contract',
+    submitted_at: new Date().toISOString(),
+    fg_name: fg,
+    farmers_with_cc: checkedFarmers,
+    drive_link: driveLink,
+    notes: document.getElementById('cc_notes').value || ''
+  };
+
+  document.getElementById('cc-send-loading').style.display = 'block';
+  document.getElementById('cc-send-success').style.display = 'none';
+  document.getElementById('cc-send-error').style.display   = 'none';
+
+  try {
+    const fd = new FormData();
+    fd.append('payload', JSON.stringify(data));
+    await fetch(APPS_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: fd });
+
+    document.getElementById('cc-send-loading').style.display = 'none';
+    document.getElementById('cc-send-success').style.display = 'block';
+
+    if (mode === 'continue') {
+      setTimeout(() => goBaseline(), 1600);
+    }
+  } catch (err) {
+    document.getElementById('cc-send-loading').style.display = 'none';
+    document.getElementById('cc-send-error').style.display   = 'block';
+  }
+}
+
+/* ─── WIZARD NAVIGATION ─── */
+function goNext() {
+  // Validate step 0 requirements
+  if (currentStep === 0) {
+    const id   = document.getElementById('farmer_id').value.trim();
+    const name = document.getElementById('farmer_name').value.trim();
+    const spyGroup    = document.querySelector('[data-id="seasons_per_year"]');
+    const spySelected = spyGroup ? spyGroup.querySelector('.chip.on') : null;
+
+    if (!id || !name) {
+      alert('Pilih Kelompok Tani dan Nama Petani terlebih dahulu.\nJika tidak ada dalam daftar, hubungi admin Rize.');
+      return;
+    }
+    if (!spySelected) { alert('Pilih jumlah musim padi per tahun terlebih dahulu.'); return; }
+
+    seasonsPerYear = parseInt(spySelected.dataset.value);
+    generateBaselineSteps(seasonsPerYear);
+  }
+
+  if (currentStep < TOTAL_STEPS - 1) {
+    setStep(currentStep + 1);
+  }
+}
+
+function goBack() {
+  if (currentStep > 0) setStep(currentStep - 1);
+}
+
+function setStep(n) {
+  document.getElementById(`step-${currentStep}`).classList.remove('active');
+  currentStep = n;
+  document.getElementById(`step-${currentStep}`).classList.add('active');
+  updateProgress();
+  updateBaselineNav();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  saveData();
+}
+
+function updateBaselineNav() {
+  const nav = document.getElementById('baseline-nav');
+  const isBaseline = currentStep >= 4 && currentStep <= 10;
+  nav.style.display = isBaseline ? 'block' : 'none';
+  if (!isBaseline) return;
+  nav.querySelectorAll('.bl-nav-tab').forEach(tab => {
+    tab.classList.toggle('active', parseInt(tab.dataset.step) === currentStep);
+  });
+  // Scroll active tab into view
+  const active = nav.querySelector('.bl-nav-tab.active');
+  if (active) active.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+}
+
+function jumpToStep(n) {
+  if (!baselineGenerated) { alert('Selesaikan Setup terlebih dahulu.'); return; }
+  document.getElementById(`step-${currentStep}`).classList.remove('active');
+  currentStep = n;
+  document.getElementById(`step-${currentStep}`).classList.add('active');
+  updateProgress();
+  updateBaselineNav();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  saveData();
+}
+
+function updateProgress() {
+  const pct = (currentStep / (TOTAL_STEPS - 1)) * 100;
+  document.getElementById('progFill').style.width = pct + '%';
+  document.getElementById('progLabel').textContent = `Langkah ${currentStep + 1} dari ${TOTAL_STEPS}`;
+}
+
+/* ─── CHIP CLICK (delegated) ─── */
+document.addEventListener('click', function(e) {
+  const chip = e.target.closest('.chip');
+  if (!chip) return;
+  const group = chip.closest('.chip-group');
+  if (!group) return;
+
+  const isMulti = group.dataset.multi === 'true';
+  if (isMulti) {
+    chip.classList.toggle('on');
+  } else {
+    group.querySelectorAll('.chip').forEach(c => c.classList.remove('on'));
+    chip.classList.add('on');
+  }
+
+  // Handle "Lainnya" → show other-input
+  const otherId = group.dataset.hasOther;
+  if (otherId) {
+    const otherEl = document.getElementById(otherId);
+    if (otherEl) {
+      const lainnya = group.querySelector('.chip[data-value="Lainnya"]');
+      otherEl.style.display = (lainnya && lainnya.classList.contains('on')) ? 'block' : 'none';
+    }
+  }
+
+  // Handle conditional sections
+  const condId = group.dataset.showsCond;
+  if (condId) {
+    const condEl = document.getElementById(condId);
+    if (condEl) {
+      const yaChip = group.querySelector('.chip[data-value="Ya"]');
+      condEl.style.display = (yaChip && yaChip.classList.contains('on')) ? 'block' : 'none';
+    }
+  }
+
+  // Handle irigasi → show number input only when "Isi Manual" selected
+  const showsManual = group.dataset.showsManual;
+  if (showsManual) {
+    const wrap = document.getElementById(showsManual);
+    if (wrap) {
+      const isManual = chip.classList.contains('on') && chip.dataset.value !== 'Continuous Flooding';
+      wrap.style.display = isManual ? 'block' : 'none';
+      if (!isManual) { const inp = wrap.querySelector('input'); if (inp) inp.value = ''; }
+    }
+  }
+
+  saveData();
+});
+
+/* ─── YEAR TABS ─── */
+function switchYear(tab) {
+  const wrap = tab.closest('.card') || tab.parentElement;
+  const yearNum = tab.dataset.year;
+  // deactivate all tabs in same year-tabs-wrap
+  tab.parentElement.querySelectorAll('.y-tab').forEach(t => t.classList.remove('on'));
+  tab.classList.add('on');
+  // show matching y-content (sibling to the tabs wrap)
+  const step = tab.closest('.step');
+  step.querySelectorAll('.y-content').forEach(c => c.classList.remove('on'));
+  step.querySelector(`.y-content[data-year="${yearNum}"]`).classList.add('on');
+}
+
+/* ─── SEASON ACCORDION ─── */
+function toggleSeason(hd) {
+  const isOpen = hd.classList.contains('open');
+  hd.classList.toggle('open', !isOpen);
+  const body = hd.nextElementSibling;
+  body.style.display = isOpen ? 'none' : 'block';
+}
+
+/* ─── DATA COLLECT ─── */
+function collectAll() {
+  const data = {};
+  // text/number/date inputs
+  document.querySelectorAll('input, textarea').forEach(el => {
+    if (el.id) data[el.id] = el.value;
+  });
+  // chip groups
+  document.querySelectorAll('.chip-group[data-id]').forEach(g => {
+    const id = g.dataset.id;
+    const multi = g.dataset.multi === 'true';
+    const sel = [...g.querySelectorAll('.chip.on')].map(c => c.dataset.value);
+    data[id] = multi ? sel : (sel[0] || null);
+  });
+  return data;
+}
+
+/* ─── SAVE TO LOCALSTORAGE ─── */
+function saveData() {
+  try {
+    localStorage.setItem('rize_survey', JSON.stringify({
+      timestamp: new Date().toISOString(),
+      step: currentStep,
+      data: collectAll()
+    }));
+  } catch(e) {}
+}
+
+// Auto-save on input changes
+document.addEventListener('input', saveData);
+document.addEventListener('change', saveData);
+
+/* ─── RESTORE FROM LOCALSTORAGE ─── */
+function restoreData() {
+  try {
+    const saved = localStorage.getItem('rize_survey');
+    if (!saved) return;
+    const { data } = JSON.parse(saved);
+    if (!data) return;
+
+    Object.entries(data).forEach(([id, val]) => {
+      const el = document.getElementById(id);
+      if (el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA')) el.value = val || '';
+    });
+    // chips
+    document.querySelectorAll('.chip-group[data-id]').forEach(g => {
+      const id = g.dataset.id;
+      if (!(id in data)) return;
+      const vals = Array.isArray(data[id]) ? data[id] : (data[id] ? [data[id]] : []);
+      g.querySelectorAll('.chip').forEach(c => {
+        if (vals.includes(c.dataset.value)) c.classList.add('on');
+      });
+      // trigger "Lainnya" visibility
+      const otherId = g.dataset.hasOther;
+      if (otherId) {
+        const lainnya = g.querySelector('.chip[data-value="Lainnya"]');
+        const otherEl = document.getElementById(otherId);
+        if (otherEl && lainnya && lainnya.classList.contains('on')) otherEl.style.display = 'block';
+      }
+      // trigger conditional
+      const condId = g.dataset.showsCond;
+      if (condId) {
+        const ya = g.querySelector('.chip[data-value="Ya"]');
+        const condEl = document.getElementById(condId);
+        if (condEl && ya && ya.classList.contains('on')) condEl.style.display = 'block';
+      }
+    });
+  } catch(e) {}
+}
+
+/* ─── BUILD STRUCTURED DATA (returns object, no DOM update) ─── */
+function buildStructuredData() {
+  const flat = collectAll();
+  return {
+    meta: {
+      submitted_at: new Date().toISOString(),
+      farmer_id: flat.farmer_id || '',
+      farmer_no: flat.farmer_no || '',
+      farmer_name: flat.farmer_name || '',
+      season: flat.season || '',
+      season_no: flat.season_no || '',
+      fg_id: flat.fg_id || '',
+      fg_name: flat.fg_name || '',
+      jawd_name: flat.jawd_name || '',
+      awd_area_ha: flat.awd_area || '',
+      parcel_count: flat.parcel_count || '',
+      seasons_per_year: flat.seasons_per_year || ''
+    },
+    section_2_feedback: {
+      category: flat.feedback_cat || null,
+      detail: flat.feedback_detail || ''
+    },
+    section_3_harvest: {
+      awd: {
+        tahun: flat.s3a_tahun, musim: flat.s3a_musim,
+        tanggal_panen: flat.s3a_tanggal, varietas: flat.s3a_varietas,
+        varietas_other: flat.s3a_varietas_other,
+        total_karung: flat.s3a_karung, berat_per_karung_kg: flat.s3a_berat,
+        produktivitas_ton_ha: flat.s3a_produktivitas, harga_jual_gkp: flat.s3a_harga
+      },
+      has_non_awd: flat.s3a_has_nonawd,
+      non_awd: flat.s3a_has_nonawd === 'Ya' ? {
+        luas_ha: flat.s3b_luas, varietas: flat.s3b_varietas, varietas_other: flat.s3b_varietas_other,
+        total_karung: flat.s3b_karung, berat_per_karung_kg: flat.s3b_berat,
+        total_produksi_kg: flat.s3b_total, mgmt_sama_awd: flat.s3b_mgmt_sama
+      } : null
+    },
+    section_4_post_harvest: {
+      mekanisme_panen: flat.s4_mekpanen, metode_jerami: flat.s4_metjerami,
+      pct_jerami_dibenamkan: flat.s4_pct_benam, pct_jerami_dibakar: flat.s4_pct_bakar,
+      metode_lain: flat.s4_metlain, metode_lain_other: flat.s4_metlain_other,
+      waktu_pengolahan: flat.s4_waktuolah
+    },
+    baseline: buildBaseline(flat),
+    section_12: { buku_catatan: flat.s12_buku_catatan }
+  };
+}
+
+/* ─── BUILD EXPORT JSON (updates DOM) ─── */
+function buildExport() {
+  const out = buildStructuredData();
+  document.getElementById('exportBox').textContent = JSON.stringify(out, null, 2);
+}
+
+function buildBaseline(flat) {
+  const spy = parseInt(flat.seasons_per_year) || (seasonsPerYear || 1);
+  const result = {};
+  const sections = ['b5','b6','b7','b8','b9','b10','b11'];
+  const sectionNames = {
+    b5:'hasil_panen', b6:'pasca_panen', b7:'persiapan_lahan',
+    b8:'metode_tanam', b9:'pengelolaan_air', b10:'pengelolaan_pupuk', b11:'pengelolaan_hama'
+  };
+
+  sections.forEach(sec => {
+    result[sectionNames[sec]] = {};
+    for (let y = 1; y <= 3; y++) {
+      const actualYear = flat[`${sec}_y${y}_actual`] || '';
+      result[sectionNames[sec]][`tahun_${y}`] = { actual_year: actualYear, musim: {} };
+      for (let s = 1; s <= spy; s++) {
+        const prefix = `${sec}_${y}_${s}_`;
+        const musimData = {};
+        // Collect all flat keys that start with this prefix
+        Object.entries(flat).forEach(([k, v]) => {
+          if (k.startsWith(prefix)) musimData[k.replace(prefix, '')] = v;
+        });
+        result[sectionNames[sec]][`tahun_${y}`].musim[`musim_${s}`] = musimData;
+      }
+    }
+  });
+  return result;
+}
+
+/* ─── SUBMIT TO APPS SCRIPT ─── */
+async function submitForm() {
+  if (APPS_SCRIPT_URL === 'PASTE_URL_DEPLOYMENT_APPS_SCRIPT_DISINI') {
+    alert('URL Apps Script belum diisi di file index.html.\nCari baris: const APPS_SCRIPT_URL = ...');
+    return;
+  }
+
+  const data = buildStructuredData();
+  if (!data.meta.farmer_id || !data.meta.farmer_name) {
+    alert('Farmer ID dan Nama Petani belum diisi. Kembali ke Step 1.');
+    return;
+  }
+
+  // Switch to loading state
+  document.getElementById('send-idle').style.display = 'none';
+  document.getElementById('send-loading').style.display = 'block';
+
+  try {
+    const formData = new FormData();
+    formData.append('payload', JSON.stringify(data));
+
+    // mode: no-cors → request goes through but response is opaque (can't read status).
+    // This is the reliable method for GitHub Pages → Apps Script.
+    // Verify data actually landed by checking the spreadsheet.
+    await fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      body: formData
+    });
+
+    document.getElementById('send-loading').style.display = 'none';
+    document.getElementById('send-success').style.display = 'block';
+
+    // Also populate JSON box as receipt
+    document.getElementById('exportBox').textContent = JSON.stringify(data, null, 2);
+
+    // Clear localStorage so next petani starts fresh
+    try { localStorage.removeItem('rize_survey'); } catch(e) {}
+
+  } catch (err) {
+    document.getElementById('send-loading').style.display = 'none';
+    document.getElementById('send-error').style.display = 'block';
+    // Populate JSON box so user can copy manually
+    document.getElementById('exportBox').textContent = JSON.stringify(data, null, 2);
+  }
+}
+
+/* ─── COPY JSON ─── */
+function copyJSON() {
+  const text = document.getElementById('exportBox').textContent;
+  if (text === 'Klik "Buat JSON" untuk melihat data...') {
+    buildExport();
+    return;
+  }
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = event.target;
+    btn.textContent = '✅ Tersalin!';
+    setTimeout(() => btn.textContent = '📋 Salin', 2000);
+  }).catch(() => {
+    // fallback
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+  });
+}
+
+/* ─── INIT ─── */
+loadFarmerData();
+showPreScreen('main');
+</script>
+</body>
+</html>
