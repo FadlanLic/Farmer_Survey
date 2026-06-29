@@ -713,6 +713,7 @@ input[readonly]{background:#F0F6EC !important;color:var(--green) !important;curs
 
   <div class="nav">
     <button class="btn btn-back" onclick="goBack()">← Kembali</button>
+    <button class="btn btn-next" onclick="showPreScreen('main')" style="background:#4A7A2A">🏠 Menu Utama</button>
   </div>
 </section>
 
@@ -724,7 +725,8 @@ input[readonly]{background:#F0F6EC !important;color:var(--green) !important;curs
 let currentStep = 0;
 const TOTAL_STEPS = 12;
 let seasonsPerYear = null;
-let baselineGenerated = false;
+let baselineGenerated   = false;
+let generatedForSeasons = null;  // track berapa musim yang sudah di-generate
 
 /* ─── CONFIG: ISI BAGIAN INI ─── */
 // Paste URL deployment Apps Script kamu di sini (lihat panduan di file Code.gs)
@@ -944,11 +946,12 @@ function renderBaselineStep(def, numSeasons) {
 
 /* ─── GENERATE BASELINE STEPS ─── */
 function generateBaselineSteps(numSeasons) {
-  if (baselineGenerated) return;
+  if (baselineGenerated && generatedForSeasons === numSeasons) return; // skip jika sama
   BASELINE_DEFS.forEach(def => {
     document.getElementById(`step-${def.step}`).innerHTML = renderBaselineStep(def, numSeasons);
   });
-  baselineGenerated = true;
+  baselineGenerated   = true;
+  generatedForSeasons = numSeasons;
 }
 
 /* ─── FARMER DATA: LOAD & DROPDOWN ─── */
